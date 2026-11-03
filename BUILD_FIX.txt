@@ -1,0 +1,1 @@
+Rebuild the PAGES APK after correcting MainActivity to load /assets/assets/index.html. The WebViewAssetLoader maps /assets/ to the APK assets root; the app files live in assets/assets/.
