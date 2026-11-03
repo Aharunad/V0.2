@@ -1,0 +1,57 @@
+name: Build PAGES Android APK
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Install SDK components
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Download offline Pocket TTS 18.2M assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          ASSETS=app/src/main/assets/assets
+          MODEL="$ASSETS/model"
+          mkdir -p "$ASSETS/vendor" "$MODEL"
+          BASE="https://huggingface.co/maxime/pocket-tts-18m-onnx/resolve/9b874ef8e0be4a95a352a0fe0455e064e75404e0/english_18m_refl_2026-10"
+          for f in bundle.json tokenizer.model voices.bin text_conditioner.onnx flow_lm_main_int8.onnx flow_lm_flow.onnx mimi_decoder.onnx; do
+            echo "Downloading 18.2M model asset: $f"
+            curl --fail --location --retry 4 --retry-all-errors "$BASE/$f" -o "$MODEL/$f"
+            test -s "$MODEL/$f"
+          done
+          npm install --no-save onnxruntime-web@1.31.1 pdfjs-dist@4.10.38
+          cp node_modules/onnxruntime-web/dist/ort.min.mjs "$ASSETS/vendor/ort.min.mjs"
+          cp node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm "$ASSETS/vendor/"
+          cp node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs "$ASSETS/vendor/" || true
+          cp node_modules/pdfjs-dist/legacy/build/pdf.mjs "$ASSETS/vendor/pdf.mjs"
+          cp node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs "$ASSETS/vendor/pdf.worker.mjs"
+          curl -fL --retry 4 "https://huggingface.co/spaces/KevinAHM/pocket-tts-web/resolve/main/sentencepiece.js" -o "$ASSETS/vendor/sentencepiece.js"
+          test -s "$ASSETS/vendor/sentencepiece.js"
+          du -sh "$MODEL" "$ASSETS/vendor"
+      - name: Build installable APK
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PAGES-Android-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Publish APK release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create pages-v1.0 app/build/outputs/apk/debug/app-debug.apk --title "PAGES v1.0 · Pocket TTS 18M" --notes "Offline PAGES Android reader with Kyutai Pocket TTS english_18m_refl_2026-10 (18.2M) ONNX model and eight preset voices. Model files are bundled inside the APK." || gh release upload pages-v1.0 app/build/outputs/apk/debug/app-debug.apk --clobber
