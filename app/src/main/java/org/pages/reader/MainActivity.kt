@@ -32,7 +32,7 @@ class MainActivity : Activity() {
    }
   }
   setContentView(web)
-  web.loadUrl("https://appassets.androidplatform.net/assets/index.html")
+  web.loadUrl("https://appassets.androidplatform.net/assets/assets/index.html")
  }
  inner class PagesBridge {
   private val hosts = listOf("feeds.bbci.co.uk","www.bbc.com","www.bbc.co.uk","www.theguardian.com","feeds.npr.org","www.npr.org","npr.org","feeds.arstechnica.com","www.arstechnica.com","arstechnica.com","theconversation.com","ichef.bbci.co.uk","i.guim.co.uk","media.npr.org","static01.nyt.com")
