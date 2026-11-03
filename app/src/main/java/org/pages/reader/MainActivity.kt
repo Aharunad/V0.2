@@ -35,7 +35,7 @@ class MainActivity : Activity() {
   web.loadUrl("https://appassets.androidplatform.net/assets/index.html")
  }
  inner class PagesBridge {
-  private val hosts = listOf("feeds.bbci.co.uk","www.theguardian.com","feeds.npr.org","feeds.arstechnica.com","theconversation.com","ichef.bbci.co.uk","i.guim.co.uk","media.npr.org")
+  private val hosts = listOf("feeds.bbci.co.uk","www.bbc.com","www.bbc.co.uk","www.theguardian.com","feeds.npr.org","www.npr.org","npr.org","feeds.arstechnica.com","www.arstechnica.com","arstechnica.com","theconversation.com","ichef.bbci.co.uk","i.guim.co.uk","media.npr.org","static01.nyt.com")
   private fun safe(s:String):URL { val u=URL(s); require(u.protocol=="https" && hosts.any { u.host==it || u.host.endsWith("."+it) }); return u }
   @JavascriptInterface fun getText(s:String):String {
    val c=safe(s).openConnection() as HttpURLConnection; c.connectTimeout=10000; c.readTimeout=12000
