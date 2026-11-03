@@ -1,0 +1,4 @@
+Pocket TTS english_18m_refl_2026-10, 18.2M parameters.
+Original model and weights: Kyutai, Creative Commons Attribution 4.0 (CC BY 4.0).
+ONNX conversion: maxime/pocket-tts-18m-onnx, pinned revision 9b874ef8e0be4a95a352a0fe0455e064e75404e0.
+Pocket 18M worker adapted from runvnc/tablefolk (MIT).
