@@ -1,0 +1,3 @@
+Trigger a pull-request build of the PAGES Android APK. This file is only a CI trigger and can be removed after build verification.
+
+Rebuild after fixing WebView asset URL: /assets/assets/index.html
